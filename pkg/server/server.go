@@ -1,7 +1,6 @@
 package server
 
 import (
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -9,11 +8,6 @@ import (
 )
 
 func StartServer() error {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		return fmt.Errorf("Fail read file .env: %v", err)
-	}
-
 	port := os.Getenv("TODO_PORT")
 
 	http.Handle("/", http.FileServer(http.Dir("../web")))
