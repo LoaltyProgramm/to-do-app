@@ -17,14 +17,7 @@ const (
 )
 
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
-	if len(repeat) < 2 {
-		return "", fmt.Errorf("\n%v Example of the format repeat: d 7. You format: %s", ERROR001, repeat)
-	}
-
 	parseRepeat := strings.Split(repeat, " ")
-	if parseRepeat[0] != "d" && parseRepeat[0] != "y" {
-		return "", fmt.Errorf("\n%v Example of the format repeat: d 7. You format: %s", ERROR002, repeat)
-	}
 
 	parseTimeDstart, err := time.Parse(layout, dstart)
 	if err != nil {
@@ -41,12 +34,12 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			return "", fmt.Errorf("Error convertation: %v", err)
 		}
 
-		valueDuration := time.Duration(24 * days) * time.Hour
-
 		for isNotValidate {
-			next = parseTimeDstart.Add(valueDuration)
+			next = parseTimeDstart.AddDate(0, 0, days)
+
 			nextDateStr := next.Format(layout)
 			nowDateStr := now.Format(layout)
+
 			if nextDateStr >= nowDateStr{
 				isNotValidate = false
 			} else {
@@ -54,6 +47,21 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			}
 		}
 
+	case "y":
+		next = parseTimeDstart.AddDate(1, 0, 0)
+
+	default:
+		return "", fmt.Errorf("%v Unsupported format %v", ERROR002, parseRepeat[0])
 	}
+
 	return fmt.Sprint(next.Format(layout)), nil
+}
+
+func main() {
+	a, err := NextDate(time.Now(), "20250329", "d 7")
+	if err != nil {
+		fmt.Print(err)
+	}
+
+	fmt.Print(a)
 }

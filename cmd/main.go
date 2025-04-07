@@ -20,6 +20,6 @@ func main() {
 	}
 
 	if err := server.StartServer(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Server startup error: %v", err)
 	}
 }
