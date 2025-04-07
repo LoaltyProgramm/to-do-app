@@ -42,7 +42,6 @@ func InitDB() error {
 			return fmt.Errorf("DB is not open: %v", err)
 		}
 
-
 		_, err = db.Exec(schema)
 		if err != nil {
 			return fmt.Errorf("Error create exec: %v", err)
