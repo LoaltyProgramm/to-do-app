@@ -16,6 +16,17 @@ const (
 	ERROR002 = "ERROR002:"
 )
 
+func comparingDate (nowDate, nextDate time.Time) bool {
+	nextDateStr := nextDate.Format(layout)
+	nowDateStr := nowDate.Format(layout)
+
+	if nextDateStr >= nowDateStr {
+		return true
+	} else {
+		return false
+	}
+}
+
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	parseRepeat := strings.Split(repeat, " ")
 
@@ -25,7 +36,6 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	}
 	
 	var next time.Time
-	var isNotValidate = true
 
 	switch parseRepeat[0] {
 	case "d":
@@ -34,18 +44,16 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 			return "", fmt.Errorf("Error convertation: %v", err)
 		}
 
-		for isNotValidate {
+		for {
 			next = parseTimeDstart.AddDate(0, 0, days)
 
-			nextDateStr := next.Format(layout)
-			nowDateStr := now.Format(layout)
-
-			if nextDateStr >= nowDateStr{
-				isNotValidate = false
+			if comparingDate(now, next) {
+				break
 			} else {
 				parseTimeDstart = next
 			}
 		}
+
 	case "y":
 		next = parseTimeDstart.AddDate(1, 0, 0)
 	default:
