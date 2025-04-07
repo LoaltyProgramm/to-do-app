@@ -46,10 +46,8 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 				parseTimeDstart = next
 			}
 		}
-
 	case "y":
 		next = parseTimeDstart.AddDate(1, 0, 0)
-
 	default:
 		return "", fmt.Errorf("%v Unsupported format %v", ERROR002, parseRepeat[0])
 	}
