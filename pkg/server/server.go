@@ -5,8 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/LoaltyProgramm/to-do-app/pkg/api"
+	"go1f/pkg/api"
 )
 
 func StartServer() error {
