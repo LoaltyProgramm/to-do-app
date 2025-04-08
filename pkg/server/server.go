@@ -10,6 +10,9 @@ import (
 
 func StartServer() error {
 	port := os.Getenv("TODO_PORT")
+	if port == "" {
+		port = "7540"
+	}
 
 	api.Init()
 	

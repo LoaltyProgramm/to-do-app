@@ -26,6 +26,9 @@ var DB *sqlx.DB
 
 func InitDB() error {
 	dbFile := os.Getenv("TODO_DBFILE")
+	if dbFile == "" {
+		dbFile = "../scheduler.db"
+	}
 
 	var err error
 
