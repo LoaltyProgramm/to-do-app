@@ -1,15 +1,19 @@
 package server
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"fmt"
+
+	"github.com/LoaltyProgramm/to-do-app/pkg/api"
 )
 
 func StartServer() error {
 	port := os.Getenv("TODO_PORT")
 
+	api.Init()
+	
 	http.Handle("/", http.FileServer(http.Dir("../web")))
 
 	log.Printf("Server start on port: %v", port)
