@@ -2,14 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
 func writeJson(w http.ResponseWriter, data any) {
 	responce, err := json.Marshal(data)
 	if err != nil {
-		fmt.Errorf("Error marshal data: %v", err)
+		http.Error(w, `{"error":"Failed to serialize response"}`, http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
