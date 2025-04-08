@@ -24,6 +24,18 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(next))
 }
 
+func taskHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		tasksHandler(w)
+	case http.MethodPost:
+		addTaskHandler(w, r)
+	}
+}
+
 func Init() {
 	http.HandleFunc("/api/nextdate", nextDayHandler)
+	http.HandleFunc("/api/task", taskHandler)
+	http.HandleFunc("/api/tasks", taskHandler)
+
 }

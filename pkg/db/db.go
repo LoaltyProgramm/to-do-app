@@ -22,6 +22,8 @@ const (
 	CREATE INDEX idx_data ON scheduler (date);`
 )
 
+var DB *sqlx.DB
+
 func InitDB() error {
 	dbFile := os.Getenv("TODO_DBFILE")
 
@@ -33,16 +35,14 @@ func InitDB() error {
 		install = true
 	}
 
-	var db *sqlx.DB
-
 	if install {
 		
-		db, err = sqlx.Open("sqlite", dbFile)
+		DB, err = sqlx.Open("sqlite", dbFile)
 		if err != nil {
 			return fmt.Errorf("DB is not open: %v", err)
 		}
 
-		_, err = db.Exec(schema)
+		_, err = DB.Exec(schema)
 		if err != nil {
 			return fmt.Errorf("Error create exec: %v", err)
 		}
@@ -50,7 +50,7 @@ func InitDB() error {
 		log.Printf("A database with the scheduler table has been created, the path to the database: %v", dbFile)
 	}
 
-	db, err = sqlx.Open("sqlite", dbFile)
+	DB, err = sqlx.Open("sqlite", dbFile)
 	if err != nil {
 		return fmt.Errorf("DB is not open: %v", err)
 	}

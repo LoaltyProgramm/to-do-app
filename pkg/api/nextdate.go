@@ -12,11 +12,11 @@ const (
 	layout = "20060102"
 )
 
-func comparingDate (nowDate, nextDate time.Time) bool {
+func comparingDate(nowDate, nextDate time.Time) bool {
 	nextDateStr := nextDate.Format(layout)
 	nowDateStr := nowDate.Format(layout)
 
-	if nextDateStr >= nowDateStr {
+	if nextDateStr > nowDateStr {
 		return true
 	} else {
 		return false
