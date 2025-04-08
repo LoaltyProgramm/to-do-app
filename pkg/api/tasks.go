@@ -6,11 +6,11 @@ import (
 )
 
 type TasksResp struct {
-	Tasks []*db.Task `json:"tasks"`
+	Tasks []db.Task `json:"tasks"`
 }
 
-func tasksHandler(w http.ResponseWriter) {
-	tasks, err := db.Tasks(50)
+func tasks(w http.ResponseWriter) {
+	tasks, err := db.GetTasks(50)
 	if err != nil {
 		writeJson(w, map[string]string{"error":"Error select from table"})
 		return
