@@ -139,3 +139,17 @@ func SearchTasksDates(date string, limit int) ([]Task, error) {
 
 	return tasks, nil
 }
+
+func SearchTasks(data string, limit int) ([]Task, error) {
+	query := `SELECT * FROM scheduler WHERE title LIKE '%' || ? || '%'
+			OR comment LIKE '%' || ? ||'%' LIMIT ?;`
+
+	var tasks []Task
+
+	err := DB.Select(&tasks, query, data, data, limit)
+	if err != nil {
+		return nil, fmt.Errorf("the request to get rows by date could not be completed: %v", err)
+	}
+
+	return tasks, nil
+}

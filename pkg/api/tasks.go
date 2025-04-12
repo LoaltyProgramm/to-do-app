@@ -42,9 +42,20 @@ func tasks(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+
+		tasks, err := db.SearchTasks(valueSearch, 50)
+		if err != nil {
+			writeJson(w, map[string]string{"error":err.Error()})
+			return
+		}
+
+		writeJson(w, TasksResp{
+			Tasks: tasks,
+		})
+		return
 	}
 
-	
+
 	
 }
 
