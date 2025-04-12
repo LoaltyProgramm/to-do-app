@@ -42,20 +42,20 @@ func InitDB() error {
 		
 		DB, err = sqlx.Open("sqlite", dbFile)
 		if err != nil {
-			return fmt.Errorf("DB is not open: %v", err)
+			return fmt.Errorf("db is not open: %v", err)
 		}
 
 		_, err = DB.Exec(schema)
 		if err != nil {
-			return fmt.Errorf("Error create exec: %v", err)
+			return fmt.Errorf("error create exec: %v", err)
 		}
 
-		log.Printf("A database with the scheduler table has been created, the path to the database: %v", dbFile)
+		log.Printf("a database with the scheduler table has been created, the path to the database: %v", dbFile)
 	}
 
 	DB, err = sqlx.Open("sqlite", dbFile)
 	if err != nil {
-		return fmt.Errorf("DB is not open: %v", err)
+		return fmt.Errorf("db is not open: %v", err)
 	}
 
 	return nil

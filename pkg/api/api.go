@@ -6,6 +6,7 @@ import (
 	"go1f/pkg/db"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -28,9 +29,10 @@ func nextDayHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func taskHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+
 	switch r.Method {
 	case http.MethodGet:
-		id := r.FormValue("id")
 		task, err := db.GetTask(id)
 		if err != nil {
 			writeJson(w, map[string]string{"error":err.Error()})
@@ -61,6 +63,24 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJson(w, db.Task{})
+	case http.MethodDelete:
+		if id == "" {
+			writeJson(w, map[string]string{"error":"id is not empty"})
+			return
+		}
+
+		_, err := strconv.Atoi(id)
+		if err != nil {
+			writeJson(w, map[string]string{"error":"Invalid id. The ID is passed as an integer"})
+			return
+		}
+
+		err = db.DeletTask(id)
+		if err != nil {
+			writeJson(w, map[string]string{"error":err.Error()})
+			return
+		}
+		writeJson(w, struct{}{})
 	}
 }
 
@@ -68,8 +88,39 @@ func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	tasks(w)
 }
 
+func ComplitedHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	task, err := db.GetTask(id)
+	if err != nil {
+		writeJson(w, map[string]string{"error":err.Error()})
+		return
+	}
+
+	if task.Repeat == "" {
+		db.DeletTask(id)
+		writeJson(w, struct{}{})
+	} 
+
+	if task.Repeat != "" {
+		nextDate, err := NextDate(time.Now(), task.Date, task.Repeat)
+		if err != nil {
+			writeJson(w, map[string]string{"error":err.Error()})
+			return
+		}
+		task.Date = nextDate
+
+		err = db.UpdateDateTask(task)
+		if err != nil {
+			writeJson(w, map[string]string{"error":err.Error()})
+			return
+		}
+		writeJson(w, struct{}{})
+	}
+}
+
 func Init() {
 	http.HandleFunc("/api/nextdate", nextDayHandler)
 	http.HandleFunc("/api/task", taskHandler)
 	http.HandleFunc("/api/tasks", tasksHandler)
+	http.HandleFunc("/api/task/done", ComplitedHandler)
 }

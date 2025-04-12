@@ -47,12 +47,12 @@ func GetTask(id string) (Task, error) {
 	task := Task{}
 
 	if id == "" {
-		return Task{}, fmt.Errorf("Id not specified")
+		return Task{}, fmt.Errorf("id not specified")
 	}
 
 	err := DB.Get(&task, query, id)
 	if err != nil {
-		return Task{}, fmt.Errorf("There is no given task: %v", err)
+		return Task{}, fmt.Errorf("there is no given task: %v", err)
 	}
 
 	return task, nil
@@ -63,25 +63,65 @@ func UpdateTask(task Task) error {
 	WHERE id = ?;`
 
 	if task.Id == "" {
-		return fmt.Errorf("Id not specified")
+		return fmt.Errorf("id not specified")
 	}
 
 	taskInt, err := strconv.Atoi(task.Id)
 	if err != nil {
-		return fmt.Errorf("The Id can only be a number: %v", err)
+		return fmt.Errorf("the Id can only be a number: %v", err)
 	}
 
 	if taskInt > 1000000 {
-		return fmt.Errorf("The ID is too large: %v", err)
+		return fmt.Errorf("the ID is too large")
 	}
 
 	if task.Comment == "" || task.Title == "" {
-		return fmt.Errorf("Required fields must be filled in: %v", err)
+		return fmt.Errorf("required fields must be filled in")
 	}
 
 	_, err = DB.Exec(query, task.Date, task.Title, task.Comment, task.Repeat, task.Id)
 	if err != nil {
-		return fmt.Errorf("Error update task: %v", err)
+		return fmt.Errorf("error update task: %v", err)
+	}
+
+	return nil
+}
+
+func UpdateDateTask(task Task) error {
+	query := `UPDATE scheduler SET date = ? 
+	WHERE id = ?;`
+
+	if task.Id == "" {
+		return fmt.Errorf("id not specified")
+	}
+
+	taskInt, err := strconv.Atoi(task.Id)
+	if err != nil {
+		return fmt.Errorf("the Id can only be a number: %v", err)
+	}
+
+	if taskInt > 1000000 {
+		return fmt.Errorf("the ID is too large")
+	}
+
+	if /*task.Comment == "" ||*/ task.Title == "" {
+		return fmt.Errorf("required fields must be filled in")
+	}
+
+	_, err = DB.Exec(query, task.Date, task.Id)
+	if err != nil {
+		return fmt.Errorf("error update task: %v", err)
+	}
+
+	return nil
+}
+
+func DeletTask(id string) error {
+	query := `DELETE FROM scheduler WHERE id = ?`
+
+	_, err := DB.Exec(query, id)
+	if err != nil {
+		return fmt.Errorf("fail delete task for id")
 	}
 
 	return nil
