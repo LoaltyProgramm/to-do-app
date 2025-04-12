@@ -104,7 +104,7 @@ func UpdateDateTask(task Task) error {
 		return fmt.Errorf("the ID is too large")
 	}
 
-	if /*task.Comment == "" ||*/ task.Title == "" {
+	if task.Title == "" {
 		return fmt.Errorf("required fields must be filled in")
 	}
 
@@ -125,4 +125,17 @@ func DeletTask(id string) error {
 	}
 
 	return nil
+}
+
+func SearchTasksDates(date string, limit int) ([]Task, error) {
+	query := `SELECT * FROM scheduler WHERE date = ? LIMIT ?;`
+
+	var tasks []Task
+
+	err := DB.Select(&tasks, query, date, limit)
+	if err != nil {
+		return nil, fmt.Errorf("the request to get rows by date could not be completed: %v", err)
+	}
+
+	return tasks, nil
 }

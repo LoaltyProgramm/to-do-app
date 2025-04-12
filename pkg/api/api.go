@@ -85,7 +85,7 @@ func taskHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
-	tasks(w)
+	tasks(w, r)
 }
 
 func ComplitedHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,6 +116,10 @@ func ComplitedHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		writeJson(w, struct{}{})
 	}
+}
+
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func Init() {
