@@ -1,25 +1,38 @@
 package main
 
 import (
-	"go1f/pkg/server"
-	"go1f/pkg/db"
 	"log"
 
-	"github.com/joho/godotenv"
-
+	"github.com/LoaltyProgramm/to-do-app/internal/config"
+	"github.com/LoaltyProgramm/to-do-app/internal/db"
+	"github.com/LoaltyProgramm/to-do-app/internal/handlers"
+	"github.com/LoaltyProgramm/to-do-app/internal/repository"
+	"github.com/LoaltyProgramm/to-do-app/internal/server"
+	"github.com/LoaltyProgramm/to-do-app/internal/service"
 )
 
 func main() {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Fail read file .env: %v", err)
+	cfg := config.Config{}
+	if err := cfg.GetEnv(); err != nil {
+		log.Fatal(err)
 	}
+	log.Println("Read env file complited")
 
 	if err := db.InitDB(); err != nil {
-		log.Fatalf("Fail init database: %v", err)
+		log.Fatal(err)
 	}
+	log.Println("Initialisation db file complited")
 
+	DB := repository.NewTaskRepository(db.DB)
+	taskService := service.NewTaskService(DB)
+	taskHandlers := handlers.NewTaskHandlers(taskService)
+	log.Println("Service task complted")
+
+	taskHandlers.InitHandler()
+	log.Println("Handlers start complited")
+
+	log.Println("Server start complited")
 	if err := server.StartServer(); err != nil {
-		log.Fatalf("Server startup error: %v", err)
+		log.Fatal(err)
 	}
-}
+}	

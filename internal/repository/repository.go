@@ -1,26 +1,43 @@
-package db
+package repository
 
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/LoaltyProgramm/to-do-app/internal/models"
+
+	"github.com/jmoiron/sqlx"
 )
 
-type Task struct {
-	Id      string `json:"id"`
-	Date    string `json:"date"`
-	Title   string `json:"title"`
-	Comment string `json:"comment"`
-	Repeat  string `json:"repeat"`
+type TaskRepository interface {
+	AddTask(task models.Task) (int64, error)
+	GetTasks(limit int) ([]models.Task, error)
+	GetTask(id string) (models.Task, error)
+	UpdateTask(task models.Task) error
+	UpdateDateTask(task models.Task) error
+	DeleteTask(id string) error
+	SearchTasksDates(date string, limit int) ([]models.Task, error)
+	SearchTasks(data string, limit int) ([]models.Task, error)
 }
 
-func AddTask(task Task) (int64, error) {
+type taskRepository struct {
+	db *sqlx.DB
+}
+
+func NewTaskRepository(db *sqlx.DB) TaskRepository {
+	return &taskRepository{
+		db: db,
+	}	
+}
+
+func (r *taskRepository) AddTask(task models.Task) (int64, error) {
 	var id int64
 
 	query := `INSERT INTO scheduler (date, title, comment, repeat)
 	VALUES (?, ?, ?, ?);
 	`
 
-	res, err := DB.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
+	res, err := r.db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
 	if err == nil {
 		id, err = res.LastInsertId()
 	}
@@ -28,37 +45,37 @@ func AddTask(task Task) (int64, error) {
 	return id, err
 }
 
-func GetTasks(limit int) ([]Task, error) {
+func (r *taskRepository) GetTasks(limit int) ([]models.Task, error) {
 	query := `SELECT * FROM scheduler ORDER BY date ASC LIMIT ?;`
 
-	tasks := []Task{}
+	tasks := []models.Task{}
 
-	err := DB.Select(&tasks, query, limit)
+	err := r.db.Select(&tasks, query, limit)
 	if err != nil {
-		return []Task{}, err
+		return []models.Task{}, err
 	}
 
 	return tasks, nil
 }
 
-func GetTask(id string) (Task, error) {
+func (r *taskRepository) GetTask(id string) (models.Task, error) {
 	query := `SELECT * FROM scheduler WHERE id=?;`
 
-	task := Task{}
+	task := models.Task{}
 
 	if id == "" {
-		return Task{}, fmt.Errorf("id not specified")
+		return models.Task{}, fmt.Errorf("id not specified")
 	}
 
-	err := DB.Get(&task, query, id)
+	err := r.db.Get(&task, query, id)
 	if err != nil {
-		return Task{}, fmt.Errorf("there is no given task: %v", err)
+		return models.Task{}, fmt.Errorf("there is no given task: %v", err)
 	}
 
 	return task, nil
 }
 
-func UpdateTask(task Task) error {
+func (r *taskRepository) UpdateTask(task models.Task) error {
 	query := `UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ? 
 	WHERE id = ?;`
 
@@ -79,7 +96,7 @@ func UpdateTask(task Task) error {
 		return fmt.Errorf("required fields must be filled in")
 	}
 
-	_, err = DB.Exec(query, task.Date, task.Title, task.Comment, task.Repeat, task.Id)
+	_, err = r.db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat, task.Id)
 	if err != nil {
 		return fmt.Errorf("error update task: %v", err)
 	}
@@ -87,7 +104,7 @@ func UpdateTask(task Task) error {
 	return nil
 }
 
-func UpdateDateTask(task Task) error {
+func (r *taskRepository) UpdateDateTask(task models.Task) error {
 	query := `UPDATE scheduler SET date = ? 
 	WHERE id = ?;`
 
@@ -108,7 +125,7 @@ func UpdateDateTask(task Task) error {
 		return fmt.Errorf("required fields must be filled in")
 	}
 
-	_, err = DB.Exec(query, task.Date, task.Id)
+	_, err = r.db.Exec(query, task.Date, task.Id)
 	if err != nil {
 		return fmt.Errorf("error update task: %v", err)
 	}
@@ -116,10 +133,10 @@ func UpdateDateTask(task Task) error {
 	return nil
 }
 
-func DeletTask(id string) error {
+func (r *taskRepository) DeleteTask(id string) error {
 	query := `DELETE FROM scheduler WHERE id = ?`
 
-	_, err := DB.Exec(query, id)
+	_, err := r.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("fail delete task for id")
 	}
@@ -127,12 +144,12 @@ func DeletTask(id string) error {
 	return nil
 }
 
-func SearchTasksDates(date string, limit int) ([]Task, error) {
+func (r *taskRepository) SearchTasksDates(date string, limit int) ([]models.Task, error) {
 	query := `SELECT * FROM scheduler WHERE date = ? LIMIT ?;`
 
-	var tasks []Task
+	var tasks []models.Task
 
-	err := DB.Select(&tasks, query, date, limit)
+	err := r.db.Select(&tasks, query, date, limit)
 	if err != nil {
 		return nil, fmt.Errorf("the request to get rows by date could not be completed: %v", err)
 	}
@@ -140,13 +157,13 @@ func SearchTasksDates(date string, limit int) ([]Task, error) {
 	return tasks, nil
 }
 
-func SearchTasks(data string, limit int) ([]Task, error) {
+func (r *taskRepository) SearchTasks(data string, limit int) ([]models.Task, error) {
 	query := `SELECT * FROM scheduler WHERE title LIKE '%' || ? || '%'
 			OR comment LIKE '%' || ? ||'%' LIMIT ?;`
 
-	var tasks []Task
+	var tasks []models.Task
 
-	err := DB.Select(&tasks, query, data, data, limit)
+	err := r.db.Select(&tasks, query, data, data, limit)
 	if err != nil {
 		return nil, fmt.Errorf("the request to get rows by date could not be completed: %v", err)
 	}

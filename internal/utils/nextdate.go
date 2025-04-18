@@ -1,4 +1,4 @@
-package api
+package utils
 
 import (
 	"errors"
@@ -9,19 +9,8 @@ import (
 )
 
 const (
-	layout = "20060102"
+	Layout = "20060102"
 )
-
-func comparingDate(nowDate, nextDate time.Time) bool {
-	nextDateStr := nextDate.Format(layout)
-	nowDateStr := nowDate.Format(layout)
-
-	if nextDateStr > nowDateStr {
-		return true
-	} else {
-		return false
-	}
-}
 
 func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	parseRepeat := strings.Split(repeat, " ")
@@ -30,7 +19,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		return "", errors.New("invalid repeat format: expected 'd <number>")
 	}
 
-	parseTimeDstart, err := time.Parse(layout, dstart)
+	parseTimeDstart, err := time.Parse(Layout, dstart)
 	if err != nil {
 		return "", fmt.Errorf("error parse dstart: %v", err)
 	}
@@ -51,7 +40,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		for {
 			next = parseTimeDstart.AddDate(0, 0, days)
 
-			if comparingDate(now, next) {
+			if ComparingDate(now, next) {
 				break
 			} else {
 				parseTimeDstart = next
@@ -61,7 +50,7 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 	case "y":
 		for {
 			next = parseTimeDstart.AddDate(1, 0, 0)
-			if comparingDate(now, next) {
+			if ComparingDate(now, next) {
 				break
 			} else {
 				parseTimeDstart = next
@@ -71,5 +60,5 @@ func NextDate(now time.Time, dstart string, repeat string) (string, error) {
 		return "", fmt.Errorf("unsupported format %v", parseRepeat[0])
 	}
 
-	return fmt.Sprint(next.Format(layout)), nil
+	return fmt.Sprint(next.Format(Layout)), nil
 }

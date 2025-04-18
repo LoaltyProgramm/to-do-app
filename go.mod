@@ -2,8 +2,6 @@ module github.com/LoaltyProgramm/to-do-app
 
 go 1.23.6
 
-replace go1f => ./
-
 require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
